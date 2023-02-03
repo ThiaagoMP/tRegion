@@ -1,0 +1,4 @@
+name: tRegion
+version: '${version}'
+main: br.com.thiaago.tregion.RegionPlugin
+api-version: 1.19
