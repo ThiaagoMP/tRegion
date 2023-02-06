@@ -5,6 +5,7 @@ import br.com.thiaago.tregion.dao.mongo.factory.ConnectionFactory
 import br.com.thiaago.tregion.model.region.Region
 import br.com.thiaago.tregion.model.region.RegionCuboid
 import br.com.thiaago.tregion.model.region.RegionPlayer
+import com.mongodb.MongoClient
 import com.mongodb.client.MongoCollection
 import org.bson.Document
 import org.bukkit.Location
@@ -17,10 +18,17 @@ private object RegionFields {
     const val MAXIMUM_LOCATION = "MAX_LOC"
 }
 
+
 class RegionRepository(
     private val regionRepositoryConfiguration: RegionRepositoryConfiguration,
-    private val collection: MongoCollection<Document> = ConnectionFactory().getCollection(regionRepositoryConfiguration)
+    private val connectionFactory: ConnectionFactory = ConnectionFactory(regionRepositoryConfiguration),
+    private val mongoClient: MongoClient = connectionFactory.mongoClient,
+    private val collection: MongoCollection<Document> = connectionFactory.getCollection(),
 ) {
+
+    fun closeConnection() {
+        mongoClient.close()
+    }
 
     fun save(region: Region) {
         val regionDocument =
@@ -39,42 +47,33 @@ class RegionRepository(
         else collection.updateOne(documentFound, playerDocument)
     }
 
-    fun getAllRegions(): MutableMap<String, RegionPlayer> {
-        val playersRegions = emptyMap<String, RegionPlayer>().toMutableMap()
+    fun getRegionPlayer(playerUUID: String): RegionPlayer? {
+        val documentPlayer =
+            collection.find(Document(RegionFields.PLAYER_UUID, playerUUID)).firstOrNull() ?: return null
 
-        val iterator = collection.find().iterator()
-        while (collection.find().iterator().hasNext()) {
+        val regions = emptyList<Region>().toMutableList()
 
-            val documentPlayer = iterator.next()
+        documentPlayer.forEach { entry: Map.Entry<String, Any> ->
+            if (entry.value is Document) {
+                val documentRegion = entry.value as Document
 
-            val regions = emptyList<Region>().toMutableList()
+                val locationMinimum =
+                    Location.deserialize(documentRegion[RegionFields.MINIMUM_LOCATION] as MutableMap<String, Any>)
+                val locationMaximum =
+                    Location.deserialize(documentRegion[RegionFields.MAXIMUM_LOCATION] as MutableMap<String, Any>)
 
-            val playerUUID = documentPlayer.getString(RegionFields.PLAYER_UUID)
-
-            documentPlayer.forEach { entry: Map.Entry<String, Any> ->
-                if (entry.value is Document) {
-                    val documentRegion = entry.value as Document
-
-                    val locationMinimum =
-                        Location.deserialize(documentRegion[RegionFields.MINIMUM_LOCATION] as MutableMap<String, Any>)
-                    val locationMaximum =
-                        Location.deserialize(documentRegion[RegionFields.MAXIMUM_LOCATION] as MutableMap<String, Any>)
-
-                    regions.add(
-                        Region(
-                            documentRegion.getString(RegionFields.REGION_NAME),
-                            playerUUID,
-                            documentRegion.getList(RegionFields.WHITE_LIST, String::class.java),
-                            RegionCuboid(locationMinimum, locationMaximum)
-                        )
+                regions.add(
+                    Region(
+                        documentRegion.getString(RegionFields.REGION_NAME),
+                        playerUUID,
+                        documentRegion.getList(RegionFields.WHITE_LIST, String::class.java),
+                        RegionCuboid(locationMinimum, locationMaximum)
                     )
-                }
+                )
             }
-            
-            playersRegions[playerUUID] = RegionPlayer(playerUUID, regions)
         }
 
-        return playersRegions
+        return RegionPlayer(playerUUID, regions)
     }
 
 }
