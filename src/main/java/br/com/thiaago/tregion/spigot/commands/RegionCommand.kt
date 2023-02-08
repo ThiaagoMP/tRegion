@@ -3,6 +3,9 @@ package br.com.thiaago.tregion.spigot.commands
 import br.com.thiaago.tregion.RegionPlugin
 import br.com.thiaago.tregion.dao.mongo.repository.RegionRepository
 import br.com.thiaago.tregion.model.controller.RegionController
+import br.com.thiaago.tregion.model.region.Region
+import br.com.thiaago.tregion.model.region.RegionCuboid
+import br.com.thiaago.tregion.model.region.RegionPlayer
 import br.com.thiaago.tregion.spigot.constants.RegionPermissions
 import br.com.thiaago.tregion.spigot.inventories.RegionInventory
 import br.com.thiaago.tregion.spigot.inventories.actions.AddPlayerWhiteListAction
@@ -47,6 +50,25 @@ class RegionCommand(
     fun executeCreate(player: Player, @ArgName("regionName") regionName: String) {
         if (!player.hasPermission(RegionPermissions.REGION_CREATE.text)) return
 
+        val region = Region(
+            regionName,
+            player.uniqueId.toString(),
+            emptyList<String>().toMutableList(),
+            RegionCuboid(player.location.add(-3.0, -3.0, -3.0), player.location.add(3.0, 3.0, 3.0))
+        )
+
+        val regionPlayer = regionController.players[player.uniqueId.toString()]
+
+        if (regionPlayer == null) regionController.players[player.uniqueId.toString()] =
+            RegionPlayer(player.uniqueId.toString(), listOf(region).toMutableList())
+        else regionPlayer.regions.add(region)
+
+        player.sendMessage(
+            ChatColor.translateAlternateColorCodes(
+                '&',
+                "&7A region has been created around you! Use /region wand to expand it!"
+            )
+        )
     }
 
     @SubCommand("wand")

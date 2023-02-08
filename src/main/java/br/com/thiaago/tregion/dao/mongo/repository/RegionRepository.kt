@@ -76,4 +76,13 @@ class RegionRepository(
         return RegionPlayer(playerUUID, regions)
     }
 
+    fun getAllRegionsPlayer(): MutableMap<String, RegionPlayer> {
+        val map = emptyMap<String, RegionPlayer>().toMutableMap()
+        collection.find().forEach { document ->
+            map[document.getString(RegionFields.PLAYER_UUID)] =
+                getRegionPlayer(document.getString(RegionFields.PLAYER_UUID))!!
+        }
+        return map
+    }
+
 }

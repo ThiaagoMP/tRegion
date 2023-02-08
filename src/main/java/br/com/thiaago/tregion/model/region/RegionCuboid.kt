@@ -4,7 +4,7 @@ import org.bukkit.Location
 import kotlin.math.max
 import kotlin.math.min
 
-class RegionCuboid(val minimumLocation: Location, val maximumLocation: Location) {
+class RegionCuboid(var minimumLocation: Location, var maximumLocation: Location) {
 
     private val minimumX: Int = min(minimumLocation.blockX, maximumLocation.blockX)
     private val maximumX: Int = max(minimumLocation.blockX, maximumLocation.blockX)

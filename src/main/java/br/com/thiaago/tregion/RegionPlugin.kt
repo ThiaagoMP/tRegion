@@ -4,7 +4,6 @@ import br.com.thiaago.tregion.dao.mongo.configuration.RegionRepositoryConfigurat
 import br.com.thiaago.tregion.dao.mongo.repository.RegionRepository
 import br.com.thiaago.tregion.model.controller.RegionController
 import br.com.thiaago.tregion.spigot.SpigotLoader
-import br.com.thiaago.tregion.spigot.inventories.RegionInventory
 import br.com.thiaago.tregion.spigot.inventories.RegionsInventory
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -35,7 +34,7 @@ class RegionPlugin : JavaPlugin() {
     }
 
     private fun loadControllers() {
-        regionController = RegionController()
+        regionController = RegionController(regionRepository!!)
     }
 
 }

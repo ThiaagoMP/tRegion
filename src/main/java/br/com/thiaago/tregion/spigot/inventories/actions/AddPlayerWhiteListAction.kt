@@ -2,6 +2,7 @@ package br.com.thiaago.tregion.spigot.inventories.actions
 
 import br.com.thiaago.tregion.dao.mongo.repository.RegionRepository
 import br.com.thiaago.tregion.model.region.Region
+import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 
@@ -19,7 +20,7 @@ class AddPlayerWhiteListAction {
                 )
                 return
             }
-            region.whiteListedPlayers.add(textSplit)
+            region.whiteListedPlayers.add(Bukkit.getOfflinePlayer(textSplit).uniqueId.toString())
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Player added to the whitelist!"))
             player.closeInventory()
             regionRepository.save(region)

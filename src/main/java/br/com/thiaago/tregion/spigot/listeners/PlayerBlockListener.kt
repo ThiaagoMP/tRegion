@@ -9,7 +9,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 
-class PlayerBlockEvent(private val regionController: RegionController) : Listener {
+class PlayerBlockListener(private val regionController: RegionController) : Listener {
 
     @EventHandler
     fun onBlockBreak(event: BlockBreakEvent) {
