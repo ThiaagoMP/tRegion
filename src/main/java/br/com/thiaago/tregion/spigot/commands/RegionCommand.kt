@@ -34,7 +34,7 @@ class RegionCommand(
         }
 
         when (args[0].toLowerCase()) {
-            "create" -> executeCreate(sender, args[0])
+            "create" -> executeCreate(sender, args[1])
             "wand" -> executeWand(sender)
             "add" -> {
                 if (args.size != 2) {
@@ -163,7 +163,7 @@ class RegionCommand(
 
         var playersMessage = region.whiteListedPlayers.joinToString(", ")
         if (playersMessage.isEmpty()) playersMessage = "Empty"
-        
+
         player.sendMessage(
             ChatColor.translateAlternateColorCodes(
                 '&', "&7Whitelist:&a $playersMessage"
