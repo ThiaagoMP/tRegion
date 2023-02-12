@@ -24,7 +24,6 @@ class PlayerBlockListener(private val regionController: RegionController) : List
     @EventHandler
     fun onBlockPlace(event: BlockPlaceEvent) {
         if (!playerIsAuthorizedInteract(event.player, event.block.location)) event.isCancelled = true
-
     }
 
     private fun playerIsAuthorizedInteract(player: Player, location: Location): Boolean {
@@ -32,7 +31,7 @@ class PlayerBlockListener(private val regionController: RegionController) : List
             regionPlayer.regions.forEach { region ->
                 val uuid = Bukkit.getPlayerUniqueId(player.name).toString()
                 if (region.cuboid.contains(location) && region.playerUUID != uuid
-                    && !region.whiteListedPlayers.contains(uuid)
+                    && !region.whiteListedPlayers.contains(player.name)
                 )
                     return false
             }
