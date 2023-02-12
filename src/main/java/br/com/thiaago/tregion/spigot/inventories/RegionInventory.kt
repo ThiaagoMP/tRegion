@@ -3,11 +3,11 @@ package br.com.thiaago.tregion.spigot.inventories
 import br.com.thiaago.tregion.RegionPlugin
 import br.com.thiaago.tregion.dao.mongo.repository.RegionRepository
 import br.com.thiaago.tregion.model.region.Region
+import br.com.thiaago.tregion.spigot.actions.AddPlayerWhiteListAction
+import br.com.thiaago.tregion.spigot.actions.ChangeLocationAction
+import br.com.thiaago.tregion.spigot.actions.RemovePlayerWhiteListAction
+import br.com.thiaago.tregion.spigot.actions.RenameRegionAction
 import br.com.thiaago.tregion.spigot.constants.RegionPlayerModifier
-import br.com.thiaago.tregion.spigot.inventories.actions.AddPlayerWhiteListAction
-import br.com.thiaago.tregion.spigot.inventories.actions.ChangeLocationAction
-import br.com.thiaago.tregion.spigot.inventories.actions.RemovePlayerWhiteListAction
-import br.com.thiaago.tregion.spigot.inventories.actions.RenameRegionAction
 import br.com.thiaago.tregion.spigot.inventories.consumer.RegionInventoryConsumer
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.components.InteractionModifier
@@ -88,13 +88,21 @@ class RegionInventory(
         changeLocationItem.setAction { clickEvent ->
             clickEvent.isCancelled = true
             val player = clickEvent.whoClicked as Player
-            ChangeLocationAction.execute(player)
+            ChangeLocationAction.execute(player, region)
+        }
+
+        val teleportItem = ItemBuilder.from(Material.ENDER_PEARL)
+            .name(Component.text(ChatColor.translateAlternateColorCodes('&', "&aTeleport"))).asGuiItem()
+        teleportItem.setAction {
+            it.whoClicked.teleport(region.cuboid.getCenter().toHighestLocation().add(0.0, 1.0, 0.0))
+            it.whoClicked.closeInventory()
         }
 
         this.setItem(10, renameItem)
         this.setItem(12, addWhitelistItem)
         this.setItem(14, removeWhitelistItem)
         this.setItem(16, changeLocationItem)
+        this.setItem(22, teleportItem)
     }
 
     private fun createAction(player: Player, message: String, consumer: BiConsumer<Region, String>) {

@@ -1,4 +1,4 @@
 MongoDB:
-  uri: "mongodb://localhost:27017"
+  uri: "localhost:27017"
   database: "plugin"
   collectionName: "regions"

@@ -1,5 +1,6 @@
 package br.com.thiaago.tregion.model.region
 
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import kotlin.math.max
 import kotlin.math.min
@@ -17,6 +18,18 @@ class RegionCuboid(var minimumLocation: Location, var maximumLocation: Location)
     fun contains(location: Location): Boolean {
         return if (worldName != location.world.name) false
         else location.x.toInt() in minimumX..maximumX && location.y.toInt() in minimumY..maximumY && location.z.toInt() in minimumZ..maximumZ
+    }
+
+    fun getCenter(): Location {
+        val x: Int = this.maximumX + 1
+        val y: Int = this.maximumY + 1
+        val z: Int = this.maximumZ + 1
+        return Location(
+            Bukkit.getWorld(worldName),
+            minimumX + (x - minimumX) / 2.0,
+            minimumY + (y - minimumY) / 2.0,
+            minimumZ + (z - minimumZ) / 2.0
+        )
     }
 
 }

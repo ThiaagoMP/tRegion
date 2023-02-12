@@ -1,4 +1,4 @@
-package br.com.thiaago.tregion.spigot.inventories.actions
+package br.com.thiaago.tregion.spigot.actions
 
 import br.com.thiaago.tregion.dao.mongo.repository.RegionRepository
 import br.com.thiaago.tregion.model.region.Region

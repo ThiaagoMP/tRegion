@@ -17,9 +17,9 @@ class RegionPlugin : JavaPlugin() {
 
     var regionController: RegionController? = null
     var regionRepository: RegionRepository? = null
-    var regionsInventory: RegionsInventory? = null
 
     override fun onEnable() {
+        saveDefaultConfig()
         loadDatabase()
         loadControllers()
         SpigotLoader.load(getInstance(), regionController!!, regionRepository!!)

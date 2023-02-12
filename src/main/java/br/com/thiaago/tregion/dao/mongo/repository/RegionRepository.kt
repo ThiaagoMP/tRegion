@@ -7,12 +7,14 @@ import br.com.thiaago.tregion.model.region.RegionCuboid
 import br.com.thiaago.tregion.model.region.RegionPlayer
 import com.mongodb.MongoClient
 import com.mongodb.client.MongoCollection
+import com.mongodb.client.model.Filters
 import org.bson.Document
 import org.bukkit.Location
 
 private object RegionFields {
     const val PLAYER_UUID = "UUID"
     const val REGION_NAME = "REGION_NAME"
+    const val REGION_ID = "REGION_ID"
     const val WHITE_LIST = "WHITELIST"
     const val MINIMUM_LOCATION = "MIN_LOC"
     const val MAXIMUM_LOCATION = "MAX_LOC"
@@ -31,20 +33,23 @@ class RegionRepository(
     }
 
     fun save(region: Region) {
-        val regionDocument =
-            mapOf(
-                Pair(RegionFields.REGION_NAME, region.regionName),
-                Pair(RegionFields.WHITE_LIST, region.whiteListedPlayers),
-                Pair(RegionFields.MINIMUM_LOCATION, region.cuboid.minimumLocation.serialize()),
-                Pair(RegionFields.MAXIMUM_LOCATION, region.cuboid.maximumLocation.serialize())
-            )
-        val playerDocument =
-            Document(RegionFields.PLAYER_UUID, region.playerUUID).append(region.regionName, regionDocument)
+        val regionFields = mapOf(
+            Pair(RegionFields.REGION_NAME, region.regionName),
+            Pair(RegionFields.REGION_ID, region.id),
+            Pair(RegionFields.WHITE_LIST, region.whiteListedPlayers),
+            Pair(RegionFields.MINIMUM_LOCATION, region.cuboid.minimumLocation.serialize()),
+            Pair(RegionFields.MAXIMUM_LOCATION, region.cuboid.maximumLocation.serialize())
+        )
 
-        val documentFound = collection.find(Document(mapOf(Pair(RegionFields.PLAYER_UUID, region.playerUUID)))).first()
+        val documentFound = collection.find(Document(RegionFields.PLAYER_UUID, region.playerUUID)).first()
 
-        if (documentFound == null) collection.insertOne(playerDocument)
-        else collection.updateOne(documentFound, playerDocument)
+        val newDocument = Document(RegionFields.PLAYER_UUID, region.playerUUID).append(region.id, regionFields)
+
+        if (documentFound == null) collection.insertOne(newDocument)
+        else collection.replaceOne(
+            Filters.eq(RegionFields.PLAYER_UUID, region.playerUUID),
+            documentFound.append(region.id, regionFields)
+        )
     }
 
     fun getRegionPlayer(playerUUID: String): RegionPlayer? {
@@ -67,7 +72,8 @@ class RegionRepository(
                         documentRegion.getString(RegionFields.REGION_NAME),
                         playerUUID,
                         documentRegion.getList(RegionFields.WHITE_LIST, String::class.java),
-                        RegionCuboid(locationMinimum, locationMaximum)
+                        RegionCuboid(locationMinimum, locationMaximum),
+                        documentRegion.getString(RegionFields.REGION_ID)
                     )
                 )
             }

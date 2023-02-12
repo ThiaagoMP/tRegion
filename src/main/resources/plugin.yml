@@ -2,3 +2,5 @@ name: tRegion
 version: '1.0'
 main: br.com.thiaago.tregion.RegionPlugin
 api-version: 1.19
+commands:
+  region:
