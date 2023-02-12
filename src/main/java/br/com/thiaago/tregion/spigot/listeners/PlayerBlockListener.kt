@@ -24,6 +24,7 @@ class PlayerBlockListener(private val regionController: RegionController) : List
     @EventHandler
     fun onBlockPlace(event: BlockPlaceEvent) {
         if (!playerIsAuthorizedInteract(event.player, event.block.location)) event.isCancelled = true
+
     }
 
     private fun playerIsAuthorizedInteract(player: Player, location: Location): Boolean {
